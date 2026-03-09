@@ -66,7 +66,7 @@ class SudokuEnvironment(Environment):
     async def get_prompt(self) -> List[TextBlock]:
         self.ta_env.reset(num_players=1, seed=self.config.seed)
         _, observation = self.ta_env.get_observation()
-        obs_text = observation if isinstance(observation, str) else str(observation)
+        obs_text = observation if isinstance(observation, str) else (str(observation[-1][1]) if isinstance(observation, list) and observation and isinstance(observation[-1], tuple) and len(observation[-1]) >= 2 else str(observation))
         prompt = (
             f"You are playing Sudoku.\n\n"
             f"{obs_text}\n\n"
@@ -110,7 +110,7 @@ class SudokuEnvironment(Environment):
             )
 
         _, observation = self.ta_env.get_observation()
-        obs_text = observation if isinstance(observation, str) else str(observation)
+        obs_text = observation if isinstance(observation, str) else (str(observation[-1][1]) if isinstance(observation, list) and observation and isinstance(observation[-1], tuple) and len(observation[-1]) >= 2 else str(observation))
         return ToolOutput(
             blocks=[TextBlock(text=obs_text)],
             metadata={"turn": self.turn_count},
