@@ -78,9 +78,6 @@ class SudokuEnvironment(Environment):
             return str(last)
         return str(observation)
 
-    def _map_reward(self, raw_reward: float) -> float:
-        return max(0.0, min(1.0, (raw_reward + 1.0) / 2.0))
-
     async def get_prompt(self) -> List[TextBlock]:
         self.ta_env.reset(num_players=1, seed=self.config.seed)
         _, observation = self.ta_env.get_observation()
@@ -112,8 +109,12 @@ class SudokuEnvironment(Environment):
         if done:
             self.game_done = True
             rewards, game_info = self.ta_env.close()
-            raw = rewards.get(0, 0.0) if isinstance(rewards, dict) else float(rewards)
-            reward = self._map_reward(raw)
+            # TextArena's Sudoku already returns a reward in [0, 1] (1.0 on a
+            # completed puzzle, otherwise the fraction of empty cells correctly
+            # filled), so pass it through unchanged rather than remapping an
+            # already-normalised value through (raw + 1) / 2, which compressed
+            # every outcome into [0.5, 1.0] and paid a zero-progress attempt 0.5.
+            reward = rewards.get(0, 0.0) if isinstance(rewards, dict) else float(rewards)
             reason = ""
             if isinstance(game_info, dict) and 0 in game_info:
                 reason = game_info[0].get("reason", "")

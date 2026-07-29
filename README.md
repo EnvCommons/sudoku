@@ -35,7 +35,7 @@ Each task is seeded for reproducibility.
 
 ## Reward Structure
 
-This is a sparse reward environment. Rewards are mapped from TextArena's native range of {-1, 0, 1} to {0.0, 0.5, 1.0} via `(raw + 1) / 2`.
+This is a sparse reward environment. TextArena's Sudoku reward is already in `[0.0, 1.0]` and is passed through unchanged: completing the puzzle scores `1.0`, and every other terminal outcome (turn limit or an invalid move) scores the fraction of empty cells correctly filled. Intermediate moves score `0.0`.
 
 We do not use LLM graders for this environment; reward is determined programmatically.
 
