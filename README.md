@@ -35,7 +35,7 @@ Each task is seeded for reproducibility.
 
 ## Reward Structure
 
-This is a sparse reward environment. Rewards are mapped from TextArena's native range of {-1, 0, 1} to {0.0, 0.5, 1.0} via `(raw + 1) / 2`.
+Each `place_number` call pays the increase in progress, where progress is the fraction of the puzzle's empty cells that are correctly filled. The session total therefore equals the progress at the end: exactly `1.0` for a solved puzzle, and the fraction of empty cells correctly filled otherwise, whether the session ends on an invalid move or simply stops. Invalid moves pay nothing: the first one in a row is a warning, and a second consecutive invalid move ends the game. Progress is never paid twice.
 
 We do not use LLM graders for this environment; reward is determined programmatically.
 

@@ -42,6 +42,10 @@ class SudokuEnvironment(Environment):
         self.ta_env = ta.make(env_id=self.config.env_id)
         self.game_done = False
         self.turn_count = 0
+        # Sum of the rewards paid so far. Each move pays only the increase in
+        # correct progress over this, so the session total equals the fraction
+        # of empty cells correctly filled (1.0 on a win) and nothing pays twice.
+        self.banked = 0.0
 
     @classmethod
     def list_splits(cls) -> list[str]:
@@ -78,8 +82,11 @@ class SudokuEnvironment(Environment):
             return str(last)
         return str(observation)
 
-    def _map_reward(self, raw_reward: float) -> float:
-        return max(0.0, min(1.0, (raw_reward + 1.0) / 2.0))
+    def _pay_progress(self) -> float:
+        progress = self.ta_env._get_percentage_completion()
+        reward = max(0.0, progress - self.banked)
+        self.banked += reward
+        return reward
 
     async def get_prompt(self) -> List[TextBlock]:
         self.ta_env.reset(num_players=1, seed=self.config.seed)
@@ -108,21 +115,20 @@ class SudokuEnvironment(Environment):
         action = f"[{params.row} {params.column} {params.number}]"
         done, info = self.ta_env.step(action=action)
         self.turn_count += 1
+        reward = self._pay_progress()
 
         if done:
             self.game_done = True
-            rewards, game_info = self.ta_env.close()
-            raw = rewards.get(0, 0.0) if isinstance(rewards, dict) else float(rewards)
-            reward = self._map_reward(raw)
+            _, game_info = self.ta_env.close()
             reason = ""
             if isinstance(game_info, dict) and 0 in game_info:
                 reason = game_info[0].get("reason", "")
-            summary = f"Game Over! Reward: {reward:.2f}"
+            summary = f"Game Over! Score: {self.banked:.2f}"
             if reason:
                 summary += f"\n{reason}"
             return ToolOutput(
                 blocks=[TextBlock(text=summary)],
-                metadata={"turn": self.turn_count, "reward": reward},
+                metadata={"turn": self.turn_count, "reward": reward, "score": self.banked},
                 reward=reward,
                 finished=True,
             )
@@ -132,6 +138,6 @@ class SudokuEnvironment(Environment):
         return ToolOutput(
             blocks=[TextBlock(text=obs_text)],
             metadata={"turn": self.turn_count},
-            reward=0.0,
+            reward=reward,
             finished=False,
         )
