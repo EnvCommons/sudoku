@@ -19,11 +19,11 @@ Sudoku does not require a sandbox. It has minimal compute requirements.
 
 ## License
 
-[MIT](https://github.com/LeonGuertler/TextArena/blob/main/LICENSE).
+[MIT](https://opensource.org/licenses/MIT).
 
 ## Tasks
 
-There are two splits: train (250 tasks) and test (250 tasks). Each split contains 50 tasks across each of 5 variants:
+There are 250 tasks in the `train` split and 250 in `test`. Each split contains 50 tasks for each of 5 variants:
 
 - **Sudoku-v0-very-easy**
 - **Sudoku-v0-easy**
@@ -31,7 +31,7 @@ There are two splits: train (250 tasks) and test (250 tasks). Each split contain
 - **Sudoku-v0-medium**
 - **Sudoku-v0-hard**
 
-Each task is seeded for reproducibility.
+Each task is seeded for reproducibility (train seeds 0-49, test seeds 10000-10049).
 
 ## Reward Structure
 
@@ -55,7 +55,7 @@ Sudoku is a multi-turn environment.
 
 ## Environment Difficulty
 
-Medium to Hard. Sudoku puzzles require logical deduction, constraint satisfaction, and systematic reasoning. Difficulty scales across variants from very-easy to hard.
+Sudoku puzzles require logical deduction and constraint satisfaction. Difficulty scales across variants from very-easy to hard.
 
 ## Other Environment Requirements
 
@@ -68,11 +68,13 @@ Agents in Sudoku interact only with a logic puzzle and have no access to externa
 ## Citations
 
 ```bibtex
-@software{textarena2024,
-  author    = {Guertler, Leon and Banting, Wilfried and Pignatelli, Eduardo},
-  title     = {TextArena},
-  year      = {2024},
-  publisher = {GitHub},
-  url       = {https://github.com/LeonGuertler/TextArena}
+@misc{guertler2025textarena,
+  title         = {TextArena},
+  author        = {Guertler, Leon and Cheng, Bobby and Yu, Simon and Liu, Bo and Choshen, Leshem and Tan, Cheston},
+  year          = {2025},
+  eprint        = {2504.11442},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2504.11442}
 }
 ```
